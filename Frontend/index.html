@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to IITGN Dispensary</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="styles.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#">
+                    <img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/a2/IIT_Gandhinagar_Logo.svg/1200px-IIT_Gandhinagar_Logo.svg.png" alt="IITGN Dispensary Logo" height="50">
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#home-section">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" id = 'editLink'>Edit</a>
+                        </li>
+                        <!-- Include the edit modal -->
+                        <iframe src="edit.html" style="display: none;"></iframe>
+
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="#about-section">About Us</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#contact-section">Contact Us</a>
+                        </li>
+                    </ul>
+                    <button id = "loginSignupBtn" class="btn btn-primary my-2 my-sm-0" type="button">Login/Signup</button>
+                    <iframe src="login.html" style="display: none;"></iframe>
+                </div>
+            </nav>
+        </header>
+
+        <div id="home-section" class="jumbotron text-center">
+            <h1> Welcome to IITGN Dispensary</h1>
+        </div>
+        <div id="about-section" class="section">
+            <h2>About Us</h2>
+            <p>This is the About Us section.</p>
+        </div>
+        <div id="contact-section" class="section">
+            <h2>Contact</h2>
+            <p>This is the Contact section.</p>
+        </div>
+        <div class="jumbotron text-center">
+            <h1> Welcome to IITGN Dispensary</h1>
+        </div>
+
+    </div>
+
+    <div id="editContent">  </div>
+<!-- Modal for Login/Signup Form -->
+<div class="modal fade" id="login" tabindex="-1" role="dialog" aria-labelledby="loginSignupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginSignupModalLabel">Login/Signup Form</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Your login/signup form goes here -->
+                <form>
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" class="form-control" id="username" placeholder="Enter username">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" placeholder="Password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <!-- New User button to open another form -->
+                    <button type="button" class="btn btn-secondary" id="newUserBtn">New User</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for New User Registration -->
+<div class="modal fade" id="newUserModal" tabindex="-1" role="dialog" aria-labelledby="newUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newUserModalLabel">New User Registration</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Your new user registration form goes here -->
+                <form>
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" class="form-control" id="firstName" placeholder="Enter first name">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" class="form-control" id="lastName" placeholder="Enter last name">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">Password</label>
+                        <input type="password" class="form-control" id="newPassword" placeholder="Password">
+                    </div>
+                    <div class="form-group">
+                        <label for="identity">Identity</label>
+                        <select class="form-control" id="identity">
+                            <option value="patient">Patient</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- jQuery, Popper.js, Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            // When the login/signup button is clicked, show the modal
+            $('#loginSignupBtn').click(function(){
+                $('#login').modal('show');
+            });
+            // When the New User button is clicked, show the new user registration modal
+            $('#newUserBtn').click(function(){
+                $('#newUserModal').modal('show');
+            });
+            // $('#editLink').click(function(e){
+            //     e.preventDefault(); // Prevent default action of hyperlink
+            //     $('#editContent').load('edit.html'); // Load content of edit.html into a container with ID editContent
+            // });
+            $('#editLink').click(function(e) {
+                e.preventDefault(); // Prevent default action of hyperlink
+                console.log("Edit link clicked"); 
+                fetch('edit.html')
+                    .then(response => response.text())
+                    .then(data => {
+                        console.log("Edit.html content loaded successfully:", data);
+                        $('#editContent').html(data); // Inject fetched content into container
+                        $('#editModal').modal('show');
+                    })
+                    .catch(error => console.error('Error loading content:', error));
+            });
+        });
+    </script>
+</body>
+
+</html>
