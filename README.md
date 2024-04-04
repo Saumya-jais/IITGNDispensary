@@ -52,13 +52,15 @@ Note: MySQL Server(workbench) should be installed on the PC. Dump the “dispens
   myenv1/Scripts/activate
 ```
 - Incase the previous command does not work, use this command before the previous command:
-  ```bash
+```bash
   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 - Install required libraries (mentioned above)
 - Insert the mySQL credentials(root,host,password,database) in config.py file
 - Run the “app.py” file using command:
+  
 ```bash
   python app.py
 ```
+
 - Click on the URL 
