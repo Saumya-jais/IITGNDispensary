@@ -7,9 +7,6 @@
 Installation requirements to run this project:
 
 ```bash
-  python3 -m venv myenv1
-```
-```bash
   pip install flask
 ```
 ```bash
