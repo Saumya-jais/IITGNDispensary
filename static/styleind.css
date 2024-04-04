@@ -1,0 +1,43 @@
+/* styles.css */
+  
+body {
+    background-color: rgb(144, 209, 231);
+}
+
+.logo-img{
+width: 100px;
+margin-bottom: 20px;
+border-radius: 50%;
+}
+
+.custom-header{
+background-color: white;
+margin-bottom: 60px;
+}
+
+.custom-section {
+background-color: rgb(144, 209, 231);
+margin-bottom: 60px;
+}
+
+.custom-section .container-fluid {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center align all items inside the section */
+}
+
+.custom-btn {
+width: 500px;  
+height: 70px;
+border-radius: 20px;
+background-color: #3ba5bc;
+border: 2px solid #060606;
+font-size: 30px;
+margin-bottom: 60px;
+/* display: block; Ensures the buttons appear one below the other */
+display: flex;
+justify-content: center; /* Center align horizontally */
+align-items: center; /* Center align vertically */
+}
+
+  
