@@ -2,6 +2,16 @@
 # Group Name : QueryCrafters
 # Dispensary Management System
 
+### Saurabh Kumar Sah 21110188
+### Shreya Patel 21110155
+### Riya Jain 21110178
+### Twinkle Devda 21110228
+### Ishika Raj 21110081
+### Saumya Jaiswal 21110186
+### Darsh Dalal 21110049
+### Het Trivedi 21110226
+
+
 ## Installation
 
 Installation requirements to run this project:
