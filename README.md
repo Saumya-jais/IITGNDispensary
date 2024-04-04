@@ -22,7 +22,9 @@ Installation requirements to run this project:
 ```bash
   pip install pymysql
 ```
-
+```bash
+  pip install config
+```
     
 ## Modules used
 
