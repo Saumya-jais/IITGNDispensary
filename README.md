@@ -43,10 +43,22 @@ Note: MySQL Server(workbench) should be installed on the PC. Dump the “dispens
 
 
 - Move all the files in one folder. Open folder as code in VS Code.
-- Create virtual environment "myenv1" using command “python -m venv myenv1”
-- Activate environment using command “myenv1/Scripts/activate”
-- Incase the previous command does not work, use this command before the previous command: "Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass"
+- Create virtual environment "myenv1" using command:
+-```bash
+  python -m venv myenv1
+```
+- Activate environment using command:
+```bash
+  myenv1/Scripts/activate
+```
+- Incase the previous command does not work, use this command before the previous command:
+  ```bash
+  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
 - Install required libraries (mentioned above)
 - Insert the mySQL credentials(root,host,password,database) in config.py file
-- Run the “app.py” file using command “python app.py”
+- Run the “app.py” file using command:
+```bash
+  python app.py
+```
 - Click on the URL 
