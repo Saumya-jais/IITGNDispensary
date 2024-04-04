@@ -44,13 +44,16 @@ Note: MySQL Server(workbench) should be installed on the PC. Dump the “dispens
 
 - Move all the files in one folder. Open folder as code in VS Code.
 - Create virtual environment "myenv1" using command:
--```bash
+```bash
   python -m venv myenv1
 ```
+
 - Activate environment using command:
+  
 ```bash
   myenv1/Scripts/activate
 ```
+
 - Incase the previous command does not work, use this command before the previous command:
 ```bash
   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
