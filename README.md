@@ -7,7 +7,7 @@
 Installation requirements to run this project:
 
 ```bash
-  python3 -m venv env_flask
+  python3 -m venv myenv1
 ```
 ```bash
   pip install flask
@@ -34,8 +34,8 @@ Note: MySQL Server(workbench) should be installed on the PC. Dump the “dispens
 
 
 - Move all the files in one folder. Open folder as code in VS Code.
-- Create virtual environment "myenv" using command “python -m venv myenv”
-- Activate environment using command “myenv/Scripts\activate”
+- Create virtual environment "myenv" using command “python -m venv myenv1”
+- Activate environment using command “myenv1/Scripts/activate”
 - Install required libraries (mentioned above)
 - Run the “app.py” file using command “python app.py”
 - Click on the URL 
