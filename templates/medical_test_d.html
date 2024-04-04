@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Test Management</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Additional custom styles can be added here */
+        label {
+        display: block;
+        margin-bottom: 5px;
+        }
+        .btn-group {
+            display: flex;
+            /* color :beige; */
+            justify-content: flex-start;
+            margin-bottom: 20px;
+            gap: 10px;
+            top : 10px;
+            /* left : 10px; */
+            width : 100px;
+        }
+        
+        .btn-group .btn-primary {
+            background-color: #086ff7; /* Change the color of the buttons */
+            border-color: #0a7ef9;
+        }
+        h6 {
+        text-align: center;
+        color: black;
+        margin: 20px auto;
+        }
+        
+        body {
+            background-color: rgb(144, 209, 231); /* Your desired background color */
+        }
+
+        label {
+        display: block;
+        margin-bottom: 5px;
+        color: #3ba5bc;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        textarea {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 10px;
+                border: 1px solid #ced4da;
+                border-radius: 5px;
+                box-sizing: border-box;
+        }
+
+        
+        input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #3ba5bc;
+            margin-bottom: 10px;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #1e7a8b;
+        }
+
+        button[type="reset"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #3ba5bc;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button[type="reset"]:hover {
+            background-color: #1e7a8b;
+        }
+
+        .container {
+            max-width: 75%;
+            /* border: 2px solid #000;
+            border-radius: 5px; */
+            padding: 20px; 
+        }
+        .table-responsive {
+            overflow-x: auto;
+            border: 2px solid #000;
+            border-radius: 5px;
+        }
+
+        .table th,
+        .table td {
+            white-space: nowrap;
+            padding: 0.75rem;
+            vertical-align: middle;
+        }
+
+        .table th {
+            background-color: #343a40;
+            color: #fff;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .table tbody tr:nth-child(odd) {
+            background-color: #bdc2c4;
+        }
+
+        .table .btn-edit,
+        .table .btn-delete {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .table .btn-edit {
+            background-color: #6c757d;
+            color: #fff;
+            border-color: #6c757d;
+        }
+
+        .table .btn-delete {
+            background-color: #dc3545;
+            color: #fff;
+            border-color: #dc3545;
+        }
+        #Name {
+            margin-bottom: 20px; /* Add space below the text */
+            font-size: large;
+        }
+        .hidden {
+            display: none;
+        }
+        form {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        #Lab_Name {
+            margin-bottom: 10px; /* Adjust the value as needed */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Button group for Back and Insert buttons -->
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="goBack()">Back</button>
+            
+        </div>
+        <div id="medical_testForm" class="hidden">
+            <h6>Medical Test Form</h6>
+            <form action="/add_test" method="POST">
+                <label for="Test_Type">Test Type:</label>
+                <input type="Test_Type" id="Test_Type" name="Test_Type" required> <!-- Added name attribute -->
+                <label for="Lab_Name">Lab Name:</label>
+                <input type="Lab_Name" id="Lab_Name" name="Lab_Name" required> <!-- Added name attribute -->
+                <button type="submit">Submit</button>
+                <button type="reset">Clear</button>
+                
+            </form>
+        </div>
+        <div class = "container-md text-center" id = "Name"> <strong>MEDICAL TEST</strong></div>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                       
+                        <th scope="col">Test_Type</th>
+                        <th scope="col">Lab_Name</th>
+                    </tr>
+                </thead>
+                <tbody id="medicalTestTable"></tbody>
+            </table>
+        </div>
+
+    </div>
+
+
+
+
+    <!-- Bootstrap and JavaScript dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- <script src="{{ url_for('static', filename='script1.js') }}"></script> -->
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+
+        // const doctorForm = document.getElementById("doctorForm");
+
+        
+        fetch('/get_medical_tests')
+            .then(response => response.json())
+            .then(data => {
+                let table = '';
+                data.forEach(test => {
+                    table += `<tr>
+                        
+                        <td>${test.Test_Type}</td>
+                        <td>${test.Lab_Name}</td>
+                    </tr>`;
+                });
+                document.getElementById('medicalTestTable').innerHTML = table;
+            });
+
+        function editTest(id) {
+            // Implement edit functionality
+        }
+
+        function deleteTest(id) {
+            // Implement delete functionality
+        }
+
+    </script>
+
+
+</body>
+</html>
