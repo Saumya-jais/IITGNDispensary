@@ -1,7 +1,9 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 import pymysql
 import config
-
+from flask import Flask, redirect, url_for, session, request
+from authlib.integrations.flask_client import OAuth
+import re 
 app = Flask(__name__)
 
 # PyMySQL configurations
@@ -9,7 +11,7 @@ app.config['MYSQL_HOST'] = config.MYSQL_HOST
 app.config['MYSQL_USER'] = config.MYSQL_USER
 app.config['MYSQL_PASSWORD'] = config.MYSQL_PASSWORD
 app.config['MYSQL_DB'] = config.MYSQL_DB
-
+app.secret_key = 'a_temporary_secret_key'
 # Initialize PyMySQL connection
 def get_mysql_connection():
     connection = pymysql.connect(host=app.config['MYSQL_HOST'],
@@ -19,10 +21,62 @@ def get_mysql_connection():
                                  cursorclass=pymysql.cursors.DictCursor)
     return connection
 
+# OAuth Configuration
+oauth = OAuth(app)
+google = oauth.register(
+    name='google',
+    client_id='990087137993-38mh8ncf6j0hs0qirj3bhsg1u51mhl4c.apps.googleusercontent.com',
+    client_secret='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',
+    access_token_url='https://oauth2.googleapis.com/token',
+    access_token_params=None,
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    authorize_params=None,
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    api_base_url='https://www.googleapis.com/oauth2/v1/',
+    userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',
+    client_kwargs={'scope': 'openid email profile'},
+)
 
 
+@app.route('/login')
+def login():
+    new_email = request.args.get('email')
+    password = request.args.get('password')
+    authority = request.args.get('authority')
+    print(new_email)
+    print('Inside login')
+    session['new_email'] = new_email  # Store the new email in the session
+    session['password'] = password
+    session['authority'] = authority
+    return google.authorize_redirect(redirect_uri=url_for('authorize', _external=True))
+
+@app.route('/login/callback')
+def authorize():
+    token = google.authorize_access_token()
+    resp = google.get('userinfo')
+    user_info = resp.json()
+    print('Inside authorize')
+    print(user_info)
+    print(session.get('new_email'))
+    # Check if the email matches the one from the registration form
+    if 'email' in user_info and user_info['verified_email'] == True and user_info['email'] == session.get('new_email'):
+        session['user_info'] = user_info
+        return redirect(url_for('register', email=user_info['email'], password=session.get('password'), authority=session.get('authority')))
+    else:
+        return 'Unauthorized Email Domain', 401
+
+@app.route('/registration', methods=['POST'])
+def check():
+    email = request.form['newEmail']
+    password = request.form['newPassword']
+    authority = request.form['authority']
+    return redirect(url_for('login', email=email, password=password, authority=authority))
 
 
+def validate_email(email):  
+    if re.match(r"[^@]+@[^@]+\.[^@]+", email):  
+        return True  
+    return False
 @app.route('/')
 def main():
     return render_template('login.html')
@@ -47,7 +101,8 @@ def med_purchase_p():
 
 @app.route('/insurance_p')
 def insurance_p():
-    return render_template('insurance_p.html')
+    email = request.args.get('email')
+    return render_template('insurance_p.html', email=email)
 
 @app.route('/doctor_p')
 def doctor_p():
@@ -70,13 +125,14 @@ def supplier_p():
     return render_template('supplier_p.html')
 @app.route('/opd_p')
 def pat_opd_p():
-    return render_template('opd_p.html')
+    email = request.args.get('email')
+    return render_template('opd_p.html',email=email)
 @app.route('/pat_opd_p')
 def opd_p():
     return render_template('pat_opd_p.html')
 
 @app.route('/index_d')
-def index_main_d():
+def index_d():
     return render_template('index_d.html')
 
 @app.route('/doc_staff_d')
@@ -146,6 +202,14 @@ def emergency():
 def med_purchase():
     return render_template('med_purchase.html')
 
+@app.route('/medical_report')
+def medical_report():
+    return render_template('med_report.html')
+
+@app.route('/medical_report_p')
+def medical_report_p():
+    return render_template('med_report_p.html')
+
 @app.route('/insurance')
 def insurance():
     return render_template('insurance.html')
@@ -179,12 +243,17 @@ def opd():
     return render_template('pat_opd.html')
 
 @app.route('/loginForm', methods=['POST'])
-def login():
+def login_form():
+    # Initialize failed login attempts counter in session if not already present
+    if 'login_attempts' not in session:
+        session['login_attempts'] = 0
+        session['login_blocked'] = False
+
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
         connection = get_mysql_connection()
-        cur =connection.cursor()
+        cur = connection.cursor()
 
         # Check if email exists in Authentication table
         sql = "SELECT * FROM Authentication WHERE email=%s"
@@ -193,28 +262,48 @@ def login():
 
         if user:
             if user['Password'] == password:
-                return redirect(user['redirect_to'])
+                session['login_attempts'] = 0  # Reset login attempts counter on successful login
+                session['login_blocked'] = False
+                session.pop('login_attempts', None)  # Reset login attempts counter on successful login
+                return redirect(url_for(user['redirect_to'], email=email))
             else:
                 error = "Incorrect details"
+                increment_login_attempts()  # Increment login attempts counter
         else:
             error = "Account doesn't exist"
         
         connection.close()
         return redirect(url_for('main'))
 
+def increment_login_attempts():
+    session['login_attempts'] += 1
+    if session['login_attempts'] >= 3:  # If login attempts exceed 3
+        session['login_blocked'] = True  # Set login blocked flag
 
 
 
 # Route for registration page
-@app.route('/registrationForm', methods=['POST','GET']) #Changes to be done
+@app.route('/registrationForm', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        email = request.form['newEmail']
-        password = request.form['newPassword']
-        authority = request.form['authority']
+    print('Inside register')
+    # new_email = request.args.get('email')
+    if 'user_info' not in session:
+        print('User not verified')
+        return redirect(url_for('login'))
+    # print(request.method)
+    # if request.method == 'POST':
+    else:
+        user_info = session.pop('user_info', None)  # Get verified user info and remove from session
+        print( user_info)
+        if user_info is None:
+            return redirect(url_for('login'))
+        
+        email = request.args.get('email')
+        print(user_info)
+        password = request.args.get('password')
+        authority = request.args.get('authority')
         connection = get_mysql_connection()
         cur = connection.cursor()
-
 
         try:
             # Check if email already exists
@@ -224,18 +313,14 @@ def register():
 
             if existing_user:
                 error = "User already exists"
-            else:
-                if authority == 'Patient':
-                    redirect_to = 'index_p'
-                elif authority == 'Doctor':
-                    redirect_to = 'index_d'
-                else:
-                    redirect_to = 'index'
-                # Insert new user into Authentication table
-                sql = "INSERT INTO Authentication (email, password, redirect_to) VALUES (%s, %s, %s)"
-                cur.execute(sql, (email, password, redirect_to))
-                connection.commit()
-                return redirect(url_for('main'))
+                return redirect(url_for('main'), error=error)  # Assuming you handle the error in your main function
+
+            redirect_to = 'index' if authority == 'Staff' else f'index_{authority[0].lower()}'
+            # Insert new user into Authentication table
+            sql = "INSERT INTO Authentication (email, password, redirect_to) VALUES (%s, %s, %s)"
+            cur.execute(sql, (email, password, redirect_to))
+            connection.commit()
+            return redirect(url_for(redirect_to))
 
         except Exception as e:
             app.logger.error('Error adding user to database: %s', str(e))
@@ -243,7 +328,6 @@ def register():
             connection.close()
 
     return redirect(url_for('main'))
-
 @app.route('/get_doctor', methods=['GET'])
 def get_doctor():
     connection = get_mysql_connection()
@@ -285,8 +369,8 @@ def get_doctors():
     connection.close()
     return jsonify(doctors)
 
-@app.route('/rename_columns', methods=['POST'])
-def rename_columns():
+@app.route('/rename_doctor', methods=['POST'])
+def rename_doctor():
     connection = get_mysql_connection()
     cursor = connection.cursor()
 
@@ -305,6 +389,7 @@ def rename_columns():
         cursor.close()
         connection.close()
 
+
 @app.route('/get_staff', methods=['GET'])
 def get_staff():
     connection = get_mysql_connection()
@@ -313,6 +398,104 @@ def get_staff():
     staff = cursor.fetchall()
     connection.close()
     return jsonify(staff)
+
+@app.route('/get_staffs', methods=['GET'])
+def get_staffs():
+    connection = get_mysql_connection()
+    cursor = connection.cursor()
+    filter_clause=None
+    column_name = request.args.get('column')
+    filter_operator = request.args.get('operator')
+    value = request.args.get('value')
+
+    # Define a mapping of operators to SQL clauses
+
+    filter_clause = f"{column_name} {filter_operator} '{value}'"
+    # Construct the SQL query with parameterized values
+    if (filter_clause):
+        sql_query = f"SELECT * FROM staff WHERE {filter_clause}"
+        # print(sql_query)
+        cursor.execute(sql_query)
+  
+    else:
+        # If no filter is provided or operator is not recognized, fetch all doctors
+        sql_query = "SELECT * FROM staff"
+        cursor.execute(sql_query)
+    
+    
+    staffs = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return jsonify(staffs)
+
+@app.route('/rename_staff', methods=['POST'])
+def rename_staff():
+    connection = get_mysql_connection()
+    cursor = connection.cursor()
+
+    old_column_name = request.json.get('oldColumnName')
+    new_column_name = request.json.get('newColumnName')
+
+    try:
+        # Rename the columns in the 'doctor' table
+        cursor.execute(f"ALTER TABLE staff CHANGE COLUMN `{old_column_name}` `{new_column_name}` VARCHAR(255);")
+        connection.commit()
+        return jsonify({'message': 'Columns renamed successfully'})
+    except Exception as e:
+        connection.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+
+@app.route('/get_medical_report', methods=['GET'])
+def get_medical_report():
+    connection = get_mysql_connection()
+    cursor = connection.cursor()
+    cursor.execute("select p.prescription_id,p.patient_id,p.date,p.diagnosis,m.test_type,m.result from prescription p natural join med_report m where p.prescription_id = m.prescription_id" )
+    medical_report= cursor.fetchall()
+    connection.close()
+    return jsonify(medical_report)
+
+
+@app.route('/get_medical_reports', methods=['GET'])
+def get_medical_reports():
+    connection = get_mysql_connection()
+    cursor = connection.cursor()
+    filter_clause=None
+    column_name = request.args.get('column')
+    filter_operator = request.args.get('operator')
+    value = request.args.get('value')
+
+    # Define a mapping of operators to SQL clauses
+  
+
+    print(column_name)
+    print(value)
+    print(filter_operator)
+    column_name=column_name.lower()
+    if column_name == 'prescription_id' or column_name == 'patient_id' or column_name == 'date' or column_name == 'diagnosis':
+        filter_clause = f"p.{column_name} {filter_operator} '{value}'"
+
+    elif column_name == 'test_type' or column_name == 'result':
+        filter_clause = f"m.{column_name} {filter_operator} '{value}'"
+    # Construct the SQL query with parameterized values
+    if (filter_clause):
+        print(filter_operator)
+        sql_query = f"select p.prescription_id,p.patient_id,p.date,p.diagnosis,m.test_type,m.result from prescription p natural join med_report m where p.prescription_id = m.prescription_id and {filter_clause}"
+        # print(sql_query)
+        cursor.execute(sql_query)
+    else:
+        # If no filter is provided or operator is not recognized, fetch all doctors
+        sql_query = "select p.prescription_id,p.patient_id,p.date,p.diagnosis,m.test_type,m.result from prescription p natural join med_report m where p.prescription_id = m.prescription_id" 
+        cursor.execute(sql_query)
+
+    medical_report = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return jsonify(medical_report)
+
 
 @app.route('/get_medical_tests', methods=['GET'])
 def get_medical_tests():
@@ -333,6 +516,50 @@ def get_hospitals():
     connection.close()
     return jsonify(hospital)
 
+@app.route('/get_hospital', methods=['GET'])
+def get_hospital():
+    connection = get_mysql_connection()
+    cursor = connection.cursor()
+    filter_clause = None
+    column_name = request.args.get('column')
+    filter_operator = request.args.get('operator')
+    value = request.args.get('value')
+
+    filter_clause = f"{column_name} {filter_operator} '{value}'"
+
+    # Construct the SQL query with parameterized values
+    if (filter_clause):
+        sql_query = f"SELECT * FROM hospital WHERE {filter_clause}"
+    else:
+        # If no filter is provided or operator is not recognized, fetch all doctors
+        sql_query = "SELECT * FROM hospital"
+
+    cursor.execute(sql_query)
+    hospital = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return jsonify(hospital)
+
+@app.route('/rename_hospital', methods=['POST'])
+def rename_hospital():
+    connection = get_mysql_connection()
+    cursor = connection.cursor()
+
+    old_column_name = request.json.get('oldColumnName')
+    new_column_name = request.json.get('newColumnName')
+
+    try:
+        cursor.execute(f"ALTER TABLE hospital CHANGE COLUMN {old_column_name} {new_column_name} VARCHAR(255);")
+        connection.commit()
+        return jsonify({'message': 'Columns renamed successfully'})
+    except Exception as e:
+        connection.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        connection.close()
+
+
 @app.route('/get_suppliers', methods=['GET'])
 def get_suppliers():
     connection = get_mysql_connection()
@@ -342,6 +569,15 @@ def get_suppliers():
     connection.close()
     return jsonify(supplier)
 
+@app.route('/get_patient_p', methods=['GET'])
+def get_patient_p():
+    email = request.args.get('email')
+    connection = get_mysql_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM patient where email = %s", (email,))
+    patients = cursor.fetchall()
+    connection.close()
+    return jsonify(patients)
 @app.route('/get_patient', methods=['GET'])
 def get_patient():
     connection = get_mysql_connection()
@@ -350,20 +586,68 @@ def get_patient():
     patients = cursor.fetchall()
     connection.close()
     return jsonify(patients)
+@app.route('/get_opds', methods=['GET'])
+def get_opds():
+    opd_type = request.args.get('opd_type')
+    doctor_id = request.args.get('doctor_id')
+    print(doctor_id)
+    # Connect to MySQL
+    connection = get_mysql_connection()
+    cursor = connection.cursor()
 
+    if opd_type == 'today':
+        # Fetch today's OPD data for the specified doctor
+        query = "SELECT * FROM opd WHERE doctor_id = %s AND DATE(date) = CURDATE()"
+        
+    else:
+        # Fetch total OPD data for the specified doctor
+        query = "SELECT * FROM opd WHERE doctor_id = %s ORDER BY Date DESC, Serial_Number ASC"
 
-
+    try:
+        cursor.execute(query, (doctor_id,))
+        opd_data = cursor.fetchall()
+        for opd in opd_data:
+            opd['Time'] = str(opd['Time'])
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    finally:
+        cursor.close()
+        connection.close()
+    return jsonify(opd_data)
 @app.route('/get_opd', methods=['GET'])
 def get_opd():
     connection = get_mysql_connection()
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM opd ORDER BY Date ASC, Serial_Number ASC")
+    cursor.execute("SELECT * FROM opd ORDER BY Date DESC, Serial_Number ASC")
     opds = cursor.fetchall()
     connection.close()
     for opd in opds:
         opd['Time'] = str(opd['Time'])
     return jsonify(opds)
 
+@app.route('/get_opd_p', methods=['GET'])
+def get_opd_p():
+    email = request.args.get('email')
+    connection = get_mysql_connection()
+    cursor = connection.cursor()
+    try:
+        # Retrieve patient_id using the provided email
+        cursor.execute("SELECT * FROM patient WHERE email = %s", (email,))
+        patient = cursor.fetchone()  # Assuming there is only one patient with the given email
+        patient_id = patient['Patient_ID']
+        print(patient_id)
+        # Retrieve insurance number using the patient_id
+        cursor.execute("SELECT * FROM opd where patient_id = %s ORDER BY Date DESC, Serial_Number ASC", (patient_id,))
+        opds = cursor.fetchall()
+        print(opds)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    finally:
+        cursor.close()
+        connection.close()
+    for opd in opds:
+        opd['Time'] = str(opd['Time'])
+    return jsonify(opds)
 
 @app.route('/get_emergencies', methods=['GET'])
 def get_emergencies():
@@ -405,6 +689,35 @@ def get_purchase():
     return jsonify(purchase)
 
 
+@app.route('/get_insurance_p', methods=['GET'])
+def get_insurance_p():
+    email = request.args.get('email')
+
+    # Connect to MySQL
+    connection = get_mysql_connection()
+    cursor = connection.cursor()
+
+    try:
+        # Retrieve patient_id using the provided email
+        cursor.execute("SELECT * FROM patient WHERE email = %s", (email,))
+        patient = cursor.fetchone()  # Assuming there is only one patient with the given email
+        patient_id = patient['Patient_ID']
+        print(patient_id)
+        # Retrieve insurance number using the patient_id
+        cursor.execute("SELECT * FROM claimed_by WHERE patient_id = %s", (patient_id,))
+        insurance = cursor.fetchone()
+        insurance_number = insurance['Insurance_Number']
+        print(insurance_number)
+        # Retrieve insurance data using the insurance number
+        cursor.execute("SELECT * FROM insurance WHERE Insurance_Number = %s", (insurance_number,))
+        insurance_data = cursor.fetchall()
+        print(insurance_data)
+        return jsonify(insurance_data)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    finally:
+        cursor.close()
+        connection.close()
 @app.route('/get_insurance', methods=['GET'])
 def get_insurance():
     connection = get_mysql_connection()
@@ -657,14 +970,65 @@ def delete_emergency():
     finally:
         connection.close()
 
-@app.route('/edit_prescription', methods=['GET','POST'])
-def edit_prescription():
+
+@app.route('/edit_report')
+def edit_report():
     prescription_id = request.args.get('id')
     connection = get_mysql_connection()
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM prescription WHERE prescription_id = %s", (prescription_id,))
-    prescription = cursor.fetchone()
+    cursor.execute("select p.prescription_id,p.patient_id,p.date,p.diagnosis,m.test_type,m.result from prescription p natural join med_report m where p.prescription_id = m.prescription_id and p.prescription_id = %s", (prescription_id,))
+    report = cursor.fetchone()
+    cursor.close()
+    return render_template('edit_med_report.html', report=report)
+
+
+
+@app.route('/update_report', methods=['POST'])
+def update_report():
+    # Retrieve form data
+    result = request.form['Result']
+    priscription_id = request.form['prescription_id']
+
+    # Update doctor information in the database
+    connection = get_mysql_connection()
+    cursor = connection.cursor()
+    query = """UPDATE med_report SET 
+               result = %s
+               WHERE prescription_id = %s"""
+    cursor.execute(query, (result, priscription_id))
+    connection.commit()
     connection.close()
+
+
+    # Redirect to doctor list page after update
+    return redirect(url_for('medical_report'))
+
+
+@app.route('/edit_prescription', methods=['GET','POST'])
+def edit_prescription():
+    prescription_id = request.args.get('id')
+    reason = request.args.get('reason')
+    print(reason)
+    connection = get_mysql_connection()
+    cursor = connection.cursor()
+
+    try:
+        query = """UPDATE prescription SET 
+                   reason = %s
+                   WHERE Prescription_ID = %s"""
+        cursor.execute(query, (reason, prescription_id))
+        connection.commit()  # Commit the transaction after executing the query
+
+        # Fetch the updated prescription
+        cursor.execute("SELECT * FROM prescription WHERE Prescription_ID = %s", (prescription_id,))
+        prescription = cursor.fetchone()
+    except Exception as e:
+        # Handle exceptions, log error messages, etc.
+        print("Error updating prescription:", e)
+        prescription = None  # Set prescription to None in case of an error
+
+    connection.close()
+
     return render_template('edit_prescription.html', prescription=prescription)
 
 @app.route('/update_prescription', methods=['POST'])
@@ -674,20 +1038,32 @@ def update_prescription():
     Patient_ID = request.form['Patient_ID']
     Diagnosis = request.form['Diagnosis']
     date = request.form['Date']
-    
+    remarks = request.form['remarks']
 
     # Update patient information in the database
-    connection = get_mysql_connection()
-    cursor = connection.cursor()
-    query = """UPDATE prescription SET 
-               Patient_ID = %s,
-               Diagnosis = %s,
-               date = %s
-               WHERE Prescription_ID = %s"""
-    cursor.execute(query, (Patient_ID, Diagnosis, date,Prescription_ID))
-    connection.commit()
-    connection.close()
-    
+    if '<script>alert' in remarks:
+        # If a potentially malicious script is found, display an alert
+        return '''
+            <script>
+                alert("Hacked");
+                window.history.back();
+            </script>
+        '''
+    try:
+        connection = get_mysql_connection()
+        cursor = connection.cursor()
+        query = """UPDATE prescription SET 
+                Patient_ID = %s,
+                Diagnosis = %s,
+                date = %s,
+                remarks = %s
+                WHERE Prescription_ID = %s"""
+        cursor.execute(query, (Patient_ID, Diagnosis, date, remarks,Prescription_ID))
+        connection.commit()
+        connection.close()
+        print(1)
+    except Exception as e:
+        print("Error updating prescription:", str(e))
     # Redirect to a specific page after updating patient information
     # Adjust the URL as needed
     return redirect(url_for('emergency'))  # Update 'some_page' with the appropriate route
@@ -1456,6 +1832,7 @@ def add_pres():
         item_id = request.form['itemID']
         date = request.form['date']
         diagnosis = request.form['diagnosis']
+        remarks =  request.form['remarks']
         is_emergency = request.form.get('emergency') == 'yes'
         is_test = request.form.get('test') == 'yes'
 
@@ -1483,8 +1860,8 @@ def add_pres():
         connection = get_mysql_connection()
         cur = connection.cursor()
         try:
-            cur.execute("INSERT INTO prescription (Prescription_ID, Patient_ID, Date, Diagnosis) VALUES (%s, %s, %s, %s)",
-                        (prescription_id, patient_id, date, diagnosis))
+            cur.execute("INSERT INTO prescription (Prescription_ID, Patient_ID, Date, Diagnosis,remarks) VALUES (%s, %s, %s, %s,%s)",
+                        (prescription_id, patient_id, date, diagnosis,remarks))
             cur.execute("INSERT INTO appointment (Prescription_ID, Serial_Number,Date) VALUES (%s, %s, %s)",
                         (prescription_id, Serial_Number,date))
 
