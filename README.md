@@ -39,12 +39,12 @@ Installation requirements to run this project:
 
 To run this project, the following modules need to be added
 
--`from flask import Flask, render_template, jsonify, request, redirect, url_for`
--`import pymysql`
--`import config`
--`from flask import Flask, redirect, url_for, session, request`
--`from authlib.integrations.flask_client import OAuth`
--`import re`
+- `from flask import Flask, render_template, jsonify, request, redirect, url_for`
+- `import pymysql`
+- `import config`
+- `from flask import Flask, redirect, url_for, session, request`
+- `from authlib.integrations.flask_client import OAuth`
+- `import re`
 
 Note: MySQL Server(workbench) should be installed on the PC. Dump the “dispensary1.sql” in the same directory.
 
