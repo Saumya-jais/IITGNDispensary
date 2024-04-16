@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Management</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Additional custom styles can be added here */
+        label {
+        display: block;
+        margin-bottom: 5px;
+        }
+        .btn-group {
+            display: flex;
+            /* color :beige; */
+            justify-content: flex-start;
+            margin-bottom: 20px;
+            gap: 10px;
+            top : 10px;
+            /* left : 10px; */
+            width : 100px;
+        }
+        
+        .btn-group .btn-primary {
+            background-color: #086ff7; /* Change the color of the buttons */
+            border-color: #0a7ef9;
+        }
+        h6 {
+        text-align: center;
+        color: black;
+        margin: 20px auto;
+        }
+        
+        body {
+            background-color: rgb(144, 209, 231); /* Your desired background color */
+        }
+
+        label {
+        display: block;
+        margin-bottom: 5px;
+        color: #3ba5bc;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        textarea {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 10px;
+                border: 1px solid #ced4da;
+                border-radius: 5px;
+                box-sizing: border-box;
+        }
+
+        
+        input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #3ba5bc;
+            margin-bottom: 10px;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #1e7a8b;
+        }
+
+        button[type="reset"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #3ba5bc;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button[type="reset"]:hover {
+            background-color: #1e7a8b;
+        }
+
+        .container {
+            max-width: 75%;
+            /* border: 2px solid #000;
+            border-radius: 5px; */
+            padding: 20px; 
+        }
+        .table-responsive {
+            overflow-x: auto;
+            border: 2px solid #000;
+            border-radius: 5px;
+        }
+
+        .table th,
+        .table td {
+            white-space: nowrap;
+            padding: 0.75rem;
+            vertical-align: middle;
+        }
+
+        .table th {
+            background-color: #343a40;
+            color: #fff;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .table tbody tr:nth-child(odd) {
+            background-color: #bdc2c4;
+        }
+
+        .table .btn-edit,
+        .table .btn-delete {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .table .btn-edit {
+            background-color: #6c757d;
+            color: #fff;
+            border-color: #6c757d;
+        }
+
+        .table .btn-delete {
+            background-color: #dc3545;
+            color: #fff;
+            border-color: #dc3545;
+        }
+        #Name {
+            margin-bottom: 20px; /* Add space below the text */
+            font-size: large;
+        }
+        .hidden {
+            display: none;
+        }
+        form {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        #Salary {
+            margin-bottom: 10px; /* Adjust the value as needed */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Button group for Back and Insert buttons -->
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="goBack()">Back</button>
+            <button class="btn btn-primary" onclick="showFilterForm()">Filter</button>
+        </div>
+
+        <div class = "container-md text-center" id = "Name"> <strong>Medical Report</strong></div>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                       
+                        <th scope="col">Prescription_ID</th>
+                        <th scope="col">Patient_ID</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Diagnosis</th>
+                        <th scope="col">Test_Type</th>
+                        <th scope="col">Result</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTable"></tbody>
+            </table>
+        </div>
+        <div id="filter-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="document.getElementById('filter-modal').style.display = 'none'">&times;</span>
+                <form id="filter-form">
+                    <label for="column-name">Column Name:</label>
+                    <input type="text" id="column-name" name="column-name" required>
+                    
+                    <label for="operator">Operator:</label>
+                    <select id="operator" name="operator">
+                        <option value="=">Equal to</option>
+                        <option value="!=">Not equal to</option>
+                        <option value=">">Greater than</option>
+                        <option value="<">Less than</option>
+                        <option value=">=">Greater than or equal to</option>
+                        <option value="<=">Less than or equal to</option>
+                    </select>
+                    
+                    <label for="value">Value:</label>
+                    <input type="text" id="value" name="value" required>
+                    
+                    <button type="submit">Filter</button>
+                    <button type="button" onclick="clearFilterForm()">Clear</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- Bootstrap and JavaScript dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- <script src="{{ url_for('static', filename='script1.js') }}"></script> -->
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+
+        // const doctorForm = document.getElementById("doctorForm");
+        function showFilterForm() {
+            const filterModal = document.getElementById("filter-modal");
+            filterModal.style.display = "block";
+        }
+
+
+        function clearFilterForm() {
+            const filterForm = document.getElementById("filter-form");
+            filterForm.reset();
+        }
+    document.getElementById("filter-form").addEventListener("submit", function(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    const columnName = formData.get("column-name");
+    const operator = formData.get("operator");
+    const value = formData.get("value");
+
+    console.log("Column Name:", columnName);
+    console.log("Operator:", operator);
+    console.log("Value:", value);
+        fetch(`/get_medical_reports?column=${encodeURIComponent(columnName)}&operator=${encodeURIComponent(operator)}&value=${encodeURIComponent(value)}`)
+            .then(response => response.json())
+            .then(data => {
+                let table = '';
+                data.forEach(report => {
+                    table += `<tr>
+                        
+                        <td>${report.prescription_id}</td>
+                        <td>${report.patient_id}</td>
+                        <td>${report.date}</td>
+                        <td>${report.diagnosis}</td>
+                        <td>${report.test_type}</td>
+                        <td>${report.result}</td>
+                    </tr>`;
+                });
+                document.getElementById('reportTable').innerHTML = table;
+            });
+        });
+        fetch('/get_medical_report')
+            .then(response => response.json())
+            .then(data => {
+                let table = '';
+                data.forEach(report => {
+                    table += `<tr>
+                    
+                        <td>${report.prescription_id}</td>
+                        <td>${report.patient_id}</td>
+                        <td>${report.date}</td>
+                        <td>${report.diagnosis}</td>
+                        <td>${report.test_type}</td>
+                        <td>${report.result}</td>
+                    </tr>`;
+                });
+                document.getElementById('reportTable').innerHTML = table;
+            });
+
+            function editReport(id) {
+            // Assuming you want to redirect to an edit page with the doctor's ID
+            window.location.href = '/edit_report?id=' + id;
+        }
+
+
+    </script>
+
+
+</body>
+</html>

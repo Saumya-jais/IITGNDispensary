@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prescription Form</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+<!-- <link rel="stylesheet" href="style_forms.css"> -->
+<style>
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+    .btn-group {
+            display: flex;
+            /* color :beige; */
+            justify-content: flex-start;
+            margin-bottom: 20px;
+            gap: 10px;
+            top : 10px;
+            /* left : 10px; */
+            width : 100px;
+    }
+
+    .btn-group .btn-primary {
+            background-color: #086ff7; /* Change the color of the buttons */
+            border-color: #0a7ef9;
+    }
+
+    body {
+        background-color: rgb(144, 209, 231);
+    }
+
+    h6 {
+        text-align: center;
+        color: black;
+        margin: 20px auto;
+    }
+
+    form {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #3ba5bc;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+
+    input[type="radio"] {
+        margin-right: 5px;
+    }
+
+    button[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        background-color: #3ba5bc;
+        margin-bottom: 10px;
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #1e7a8b;
+    }
+
+    button[type="reset"] {
+        width: 100%;
+        padding: 10px;
+        background-color: #3ba5bc;
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    button[type="reset"]:hover {
+        background-color: #1e7a8b;
+    }
+
+    #emergencyFields {
+        display: none;
+    }
+    .hidden {
+            display: none;
+    }
+    .table-responsive {
+            overflow-x: auto;
+            border: 2px solid #000;
+            border-radius: 5px;
+    }
+    .table th,
+        .table td {
+            white-space: nowrap;
+            padding: 0.75rem;
+            vertical-align: middle;
+        }
+
+        .table th {
+            background-color: #343a40;
+            color: #fff;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .table tbody tr:nth-child(odd) {
+            background-color: #bdc2c4;
+        }
+
+        .table .btn-edit,
+        .table .btn-delete {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .table .btn-edit {
+            background-color: #6c757d;
+            color: #fff;
+            border-color: #6c757d;
+        }
+
+        .table .btn-delete {
+            background-color: #dc3545;
+            color: #fff;
+            border-color: #dc3545;
+        }
+</style>
+</head>
+<body>
+    <div class="container">
+        <!-- Button group for Back and Insert buttons -->
+        <div id="error-modal" class="modal">
+            <div class="modal-content">
+              <span class="close">&times;</span>
+              <p id="error-message"></p>
+            </div>
+        </div>
+    <div class="container">
+        <!-- Button group for Back and Insert buttons -->
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="goBack()">Back</button>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="showTable('emergencyTable')">Emergency</button>
+            <button class="btn btn-primary" onclick="showTable('presTable')">Prescription</button>
+        </div>
+        <div id="prescriptionForm" class="hidden">
+            <h6>Prescription Form</h6>
+            <form action="\add_pres" method="POST">
+                <div>
+                    <label for="prescriptionID">Prescription ID:</label>
+                    <input type="text" id="prescriptionID" name="prescriptionID" required>
+                </div>
+                <div>
+                    <label for="patientID">Patient ID:</label>
+                    <input type="text" id="patientID" name="patientID" required>
+                </div>
+                <div>
+                    <label for="doctorID">Doctor ID:</label>
+                    <input type="text" id="doctorID" name="doctorID" required>
+                </div>
+                <div>
+                    <label for="SerialNo">Serial No:</label>
+                    <input type="text" id="SerialNo" name="SerialNo" required>
+                </div>
+                <div>
+                    <label for="itemID">Item ID:</label>
+                    <input type="text" id="itemID" name="itemID" required>
+                </div>
+
+                <div>
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                <div>
+                    <label for="diagnosis">Diagnosis:</label>
+                    <textarea id="diagnosis" name="diagnosis" required></textarea>
+                </div>
+                <div>
+                    <label>Any medical tests prescribed?</label>
+                    <input type="radio" id="testYes" name="test" value="yes"> <label for="testYes">Yes</label>
+                    <input type="radio" id="testNo" name="test" value="no"> <label for="testNo">No</label>
+                </div>
+                <div id="testFields" style="display: none;">
+                    <div>
+                        <label for="Test_Name">Test Name:</label>
+                        <input type="text" id="Test_Name" name="Test_Name">
+                    </div>
+                </div>
+                
+                
+                <div>
+                    <label>Is this an emergency case?</label>
+                    <input type="radio" id="emergencyYes" name="emergency" value="yes"> <label for="emergencyYes">Yes</label>
+                    <input type="radio" id="emergencyNo" name="emergency" value="no"> <label for="emergencyNo">No</label>
+                </div>
+                <div id="emergencyFields" style="display: none;">
+                    <div>
+                        <label for="licenseNumber">License Number:</label>
+                        <input type="text" id="licenseNumber" name="licenseNumber">
+                    </div>
+                    <div>
+                        <label for="disease">Disease:</label>
+                        <input type="text" id="disease" name="disease">
+                    </div>
+                    <div>
+                        <label for="emergencyDate">Date:</label>
+                        <input type="date" id="emergencyDate" name="emergencyDate">
+                    </div>
+                    <div>
+                        <label for="time">Time:</label>
+                        <input type="time" id="time" name="time">
+                    </div>
+                </div>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+        <div id = "emergencySection"  style="display: none;">
+            <div class="container-md text-center" id="Name">
+                <strong>Emergency</strong>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                          
+                            <th scope="col">Patient_ID</th>
+                            <th scope="col">License_Number</th>
+                            <th scope="col">Disease</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="emergencyTable"></tbody>
+                </table>
+            </div>
+            </div>
+    
+            <div id = "prescriptionSection"  style="display: none;">
+                <div class="container-md text-center" id="Pres">
+                    <strong>Prescription</strong>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                               
+                                <th scope="col">Prescription_ID</th>
+                                <th scope="col">Patient_ID</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Diagnosis</th>
+                            </tr>
+                        </thead>
+                        <tbody id="presTable"></tbody>
+                    </table>
+                </div>
+                </div>
+        </div>
+    
+    <script>
+    const form = document.getElementById('prescriptionForm');
+    const testFields = document.getElementById('testFields');
+    const emergencyFields = document.getElementById('emergencyFields');
+
+    form.addEventListener('change', function() {
+        const isTest = document.querySelector('input[name="test"]:checked').value === 'yes';
+        testFields.style.display = isTest ? 'block' : 'none';
+    });
+    form.addEventListener('change', function() {
+        const isEmergency = document.querySelector('input[name="emergency"]:checked').value === 'yes';
+        emergencyFields.style.display = isEmergency ? 'block' : 'none';
+    });
+        function goBack() {
+            window.history.back();
+        }
+    
+        function showInsertForm() {
+            const prescriptionForm = document.getElementById("prescriptionForm");
+            prescriptionForm.classList.remove("hidden");
+        }
+        function showTable(tableId) {
+            if (tableId === 'emergencyTable') {
+                document.getElementById('emergencySection').style.display = 'block';
+                document.getElementById('prescriptionSection').style.display = 'none';
+            } else if (tableId === 'presTable') {
+                document.getElementById('emergencySection').style.display = 'none';
+                document.getElementById('prescriptionSection').style.display = 'block';
+            }
+        }
+        var modal = document.getElementById('error-modal');
+
+    // Get the <span> element that closes the modal
+    var closeBtn = modal.querySelector('.close');
+
+    // When the user clicks on <span> (x), close the modal
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+    };
+
+    // Add event listener to form submission
+    document.querySelector('form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch('/add_pres', {
+                method: 'POST',
+                body: formData
+            });
+        
+            if (response.ok) {
+                // Display success message in the modal dialog box
+                document.getElementById('error-message').textContent = 'Record inserted successfully!';
+                modal.style.display = 'block'; // Show the modal dialog box
+            } else {
+                // If response is not okay, display error message from server
+                const data = await response.json();
+                const errorMessage = data.error || 'An error occurred. Please try again later.';
+                document.getElementById('error-message').textContent = errorMessage;
+                modal.style.display = 'block'; // Show the modal dialog box
+            }
+        } catch (error) {
+            // If an error occurs during fetch, display generic error message
+            console.error('Error:', error);
+            document.getElementById('error-message').textContent = 'An error occurred. Please try again later.';
+            modal.style.display = 'block'; // Show the modal dialog box
+        }
+        
+    });
+    // =========================================================================================================
+
+
+        fetch('/get_emergencies') // Fetch emergencies instead of suppliers
+            .then(response => response.json())
+            .then(data => {
+                let table = '';
+                data.forEach(emergency => {
+                    // Convert timedelta objects to string
+                    const date = new Date(emergency.Date);
+                    const formattedDate = date.toLocaleDateString();
+                    const time = emergency.Time.toString(); // Assuming Time is a timedelta object
+                    table += `<tr>
+                        
+                        <td>${emergency.Patient_ID}</td>
+                        <td>${emergency.License_Number}</td>
+                        <td>${emergency.Disease}</td>
+                        <td>${formattedDate}</td>
+                        <td>${time}</td>
+                    </tr>`;
+                });
+                document.getElementById('emergencyTable').innerHTML = table;
+            });
+        fetch('/get_pres') // Fetch emergencies instead of suppliers
+            .then(response => response.json())
+            .then(data => {
+                let table = '';
+                data.forEach(pres => {
+                    // Convert timedelta objects to string
+                    const date = new Date(pres.Date);
+                    const formattedDate = date.toLocaleDateString();
+                    table += `<tr>
+                        <td>${pres.Prescription_ID}</td>
+                        <td>${pres.Patient_ID}</td>
+                        <td>${formattedDate}</td>
+                        <td>${pres.Diagnosis}</td>
+                    </tr>`;
+                });
+                document.getElementById('presTable').innerHTML = table;
+            });
+        
+
+        
+</script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Insurance</title>
+    <style>
+        .hidden-column {
+            display: none; 
+        }
+        body {
+            background-color: rgb(144, 209, 231); /* Your desired background color */
+        }
+        form {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+        display: block;
+        margin-bottom: 5px;
+        color: #3ba5bc;
+        }
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        textarea {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 10px;
+                border: 1px solid #ced4da;
+                border-radius: 5px;
+                box-sizing: border-box;
+        }
+
+        
+        input[type="radio"] {
+            margin-right: 5px;
+        }
+        h1 {
+        text-align: center;
+        color: black;
+        margin: 20px auto;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #3ba5bc;
+            margin-bottom: 10px;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        input[type="submit"]:hover{
+            background-color: #1e7a8b;
+        }
+    </style>
+</head>
+<body>
+    <h1>Edit Insurance Information</h1>
+    <form id="editForm" method="post" action="/update_report">
+        <div class="hidden-column">
+            <label for="prescription_id">prescription id:</label>
+            <input type="text" id="prescription_id" name="prescription_id" value="{{ report.prescription_id }}" required>
+        </div>
+        <label for="Result">Result:</label>
+        <select id="Result" name="Result" value="{{report.result}}" required>
+            <option value="Pending">Pending</option>
+            <option value="Positive">Positive</option>
+            <option value="Negative">Negative</option>
+        </select>
+    
+        
+        <input type="submit" value="Update">
+        
+    </form>
+        
+
+</body>
+</html>

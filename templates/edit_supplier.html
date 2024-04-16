@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Supplier</title>
+    <style>
+        .hidden-column {
+            display: none; /* This will hide the column */
+        }
+        body {
+            background-color: rgb(144, 209, 231); /* Your desired background color */
+        }
+        form {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+        display: block;
+        margin-bottom: 5px;
+        color: #3ba5bc;
+        }
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        textarea {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 10px;
+                border: 1px solid #ced4da;
+                border-radius: 5px;
+                box-sizing: border-box;
+        }
+
+        
+        input[type="radio"] {
+            margin-right: 5px;
+        }
+        h1 {
+        text-align: center;
+        color: black;
+        margin: 20px auto;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #3ba5bc;
+            margin-bottom: 10px;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        input[type="submit"]:hover{
+            background-color: #1e7a8b;
+        }
+    </style>
+</head>
+<body>
+    <h1>Edit Supplier Information</h1>
+    <form id="editForm" method="post" action="/update_supplier">
+        
+
+        <div class="hidden-column"><label for="Supplier_ID">Supplier ID:</label>
+        <input type="text" id="Supplier_ID" name="Supplier_ID" value="{{ supplier.Supplier_ID }}" required></div>
+
+
+        <label for="Agency_Name">Agency Name:</label>
+        <input type="text" id="Agency_Name" name="Agency_Name" value="{{ supplier.Agency_Name }}" required>
+        
+        
+        
+        <label for="street_number">Street Number:</label>
+        <input type="text" id="street_number" name="street_number" value="{{ supplier.Street_Number }}" required>
+        
+        <label for="street_name">Street Name:</label>
+        <input type="text" id="street_name" name="street_name" value="{{ supplier.Street_Name }}"required>
+        
+        <label for="apartment_number">Apartment Number:</label>
+        <input type="text" id="apartment_number" name="apartment_number" value="{{supplier.Apartment_Number}}">
+        
+        <label for="city">City:</label>
+        <input type="text" id="city" name="city" value="{{ supplier.City}}"required>
+        
+        <label for="pincode">Pincode:</label>
+        <input type="text" id="pincode" name="pincode" value="{{ supplier.Pincode}}" required>
+        
+
+
+        <label for="Account_Number">Account Number:</label>
+        <input type="text" id="Account_Number" name="Account_Number"value="{{ supplier.Account_Number}}" required>
+
+       
+        <label for="Bank_Name">Bank Name:</label>
+        <input type="text" id="Bank_Name" name="Bank_Name"value="{{ supplier.Bank_Name }}" required>
+
+        <label for="IFSC_Code">IFSC Code:</label>
+        <input type="text" id="IFSC_Code" name="IFSC_Code"value="{{ supplier.IFSC_Code }}" required>
+       
+        <label for="Branch">Branch:</label>
+        <input type="text" id="Branch" name="Branch"value="{{ supplier.Branch }}" required>
+
+        
+        
+        
+        <input type="submit" value="Update">
+
+        
+
+        
+    </form>
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Purchase Order</title>
+    <style>
+        .hidden-column {
+            display: none; /* This will hide the column */
+        }
+        body {
+            background-color: rgb(144, 209, 231); /* Your desired background color */
+        }
+        form {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+        display: block;
+        margin-bottom: 5px;
+        color: #3ba5bc;
+        }
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        textarea {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 10px;
+                border: 1px solid #ced4da;
+                border-radius: 5px;
+                box-sizing: border-box;
+        }
+
+        
+        input[type="radio"] {
+            margin-right: 5px;
+        }
+        h1 {
+        text-align: center;
+        color: black;
+        margin: 20px auto;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #3ba5bc;
+            margin-bottom: 10px;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        input[type="submit"]:hover{
+            background-color: #1e7a8b;
+        }
+    </style>
+</head>
+<body>
+    <h1>Edit Purchase Order Information</h1>
+    <form id="editForm" method="post" action="/update_purchase_order">
+        
+        <div class="hidden-column">
+        <label for="Bill_Number">Bill_Number:</label>
+        <input type="text" id="Bill_Number" name="Bill_Number" value="{{ purchase_order.Bill_Number }}" required></div>
+        </div>
+
+        <label for="Quantity">Quantity:</label>
+        <input type="number" id="Quantity" name="Quantity" value="{{ purchase_order.Quantity}}" required>
+        
+        
+       
+        <label for="Amount_Paid">Amount_Paid:</label>
+        <input type="text" id="Amount_Paid" name="Amount_Paid"value="{{ purchase_order.Amount_Paid }}" required>
+
+        
+        
+        
+        <input type="submit" value="Update">
+
+        
+
+        
+    </form>
+
+</body>
+</html>
